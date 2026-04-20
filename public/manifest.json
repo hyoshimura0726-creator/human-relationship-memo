@@ -1,0 +1,17 @@
+{
+  "name": "Relationship Keeper",
+  "short_name": "RelKeeper",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "description": "人間関係メモ＆AI分析アプリ",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any 192x192 512x512",
+      "purpose": "any"
+    }
+  ]
+}

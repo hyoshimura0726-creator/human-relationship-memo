@@ -1,0 +1,6 @@
+{
+  "name": "Remix: 人間関係メモ＆AI分析アプリ",
+  "description": "個人の特性や行動パターンを記録し、AIが適切な期待値や接し方のアドバイスをくれるアプリです。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

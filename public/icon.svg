@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2F0FD" />
+      <stop offset="100%" stop-color="#C5DDF5" />
+    </linearGradient>
+
+    <!-- Left Heart Gradient (Organic / Pink) -->
+    <linearGradient id="leftHeartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCA5A5" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+
+    <!-- Right Heart Gradient (Tech / Teal) -->
+    <linearGradient id="rightHeartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <!-- Glow Filter for Heart -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="glowSubtle" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Drop Shadow for Background -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#0f172a" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Background -->
+  <rect x="32" y="32" width="448" height="448" rx="80" fill="url(#bgGrad)" filter="url(#dropShadow)" />
+
+  <!-- Heart Container with Subtle Glow -->
+  <g transform="translate(0, 8)" filter="url(#glow)">
+    
+    <!-- Left Half: Organic (Pink) -->
+    <g>
+      <!-- Base Shape -->
+      <path d="M256,384 C256,384 100,288 100,180 C100,116 150,68 210,68 C236,68 250,78 256,92 L256,384 Z" fill="url(#leftHeartGrad)" />
+      <!-- Decorative Leaves/Vines -->
+      <path d="M160,180 Q180,140 210,160 Q190,190 160,180 Z" fill="#FFF" fill-opacity="0.5" />
+      <path d="M140,240 Q180,200 230,220 Q200,260 140,240 Z" fill="#FFF" fill-opacity="0.3" />
+      <path d="M190,110 Q210,90 230,120 Q210,130 190,110 Z" fill="#FFF" fill-opacity="0.4" />
+      <path d="M130,140 Q150,110 180,120 M180,280 Q210,240 250,260" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round" stroke-opacity="0.6"/>
+      <circle cx="150" cy="200" r="4" fill="#FFF" fill-opacity="0.6" />
+      <circle cx="180" cy="260" r="3" fill="#FFF" fill-opacity="0.4" />
+      <circle cx="210" cy="130" r="5" fill="#FFF" fill-opacity="0.5" />
+      <circle cx="240" cy="180" r="2" fill="#FFF" fill-opacity="0.6" />
+    </g>
+
+    <!-- Right Half: Tech (Teal/Blue) -->
+    <g>
+      <!-- Base Shape -->
+      <path d="M256,384 C256,384 412,288 412,180 C412,116 362,68 302,68 C276,68 262,78 256,92 L256,384 Z" fill="url(#rightHeartGrad)" />
+      <!-- Circuit Lines & Nodes -->
+      <path d="M256,120 L290,120 L310,140 L350,140 M256,180 L280,180 L300,200 L300,240 M320,100 L320,120 L360,160 L380,160 M256,260 L290,260 L330,220 L330,180 M280,320 L310,290 L310,250 L350,250 M256,340 L270,340 L290,320 L330,320" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke-opacity="0.6" />
+      
+      <!-- CPU/Chips -->
+      <rect x="340" y="130" width="20" height="20" rx="4" fill="#FFF" fill-opacity="0.8" />
+      <rect x="290" y="230" width="16" height="16" rx="3" fill="#FFF" fill-opacity="0.6" />
+      <rect x="320" y="170" width="24" height="24" rx="4" fill="#FFF" fill-opacity="0.7" />
+      <rect x="340" y="240" width="12" height="12" rx="2" fill="#FFF" fill-opacity="0.5" />
+      
+      <circle cx="280" cy="180" r="3" fill="#FFF" />
+      <circle cx="320" cy="100" r="3" fill="#FFF" />
+      <circle cx="290" cy="120" r="3" fill="#FFF" />
+      <circle cx="380" cy="160" r="3" fill="#FFF" />
+      <circle cx="330" cy="320" r="3" fill="#FFF" />
+    </g>
+
+    <!-- Center Separator Glow -->
+    <line x1="256" y1="92" x2="256" y2="384" stroke="#FFF" stroke-width="4" stroke-opacity="0.8" filter="url(#glowSubtle)" />
+  </g>
+
+  <!-- Progress Bar / Indicator -->
+  <g transform="translate(156, 420)">
+    <!-- Track -->
+    <rect x="0" y="0" width="200" height="12" rx="6" fill="#94A3B8" fill-opacity="0.3" />
+    <!-- Fill -->
+    <rect x="0" y="0" width="140" height="12" rx="6" fill="#34D399" filter="url(#glowSubtle)" />
+    <!-- Highlight -->
+    <rect x="4" y="2" width="130" height="4" rx="2" fill="#FFF" fill-opacity="0.4" />
+  </g>
+</svg>

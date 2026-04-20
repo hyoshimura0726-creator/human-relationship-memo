@@ -13,6 +13,24 @@ const STORAGE_KEY = 'relationship_keeper_data_v1';
 const CHAT_STORAGE_KEY = 'relationship_keeper_chat_v1';
 const ROLEPLAY_STORAGE_KEY = 'relationship_keeper_roleplay_v1';
 
+const readGeminiApiKey = (): string => {
+  const importMetaEnv = (import.meta as any)?.env ?? {};
+  return (
+    importMetaEnv.GEMINI_API_KEY ||
+    importMetaEnv.VITE_GEMINI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    ''
+  );
+};
+
+const createAiClient = (): GoogleGenAI => {
+  const apiKey = readGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is missing');
+  }
+  return new GoogleGenAI({ apiKey });
+};
+
 const RELATIONSHIP_TEMPLATES = [
   { label: '白紙から作成', icon: UserCircle, relationship: '', traits: [], expectation: 3, category: 'その他' as const },
   { label: '職場の関係', icon: Briefcase, relationship: '職場の同僚/上司', traits: ['仕事優先', '報告が遅い', '完璧主義'], expectation: 3, category: '仕事' as const },
@@ -121,9 +139,9 @@ export default function App() {
   const analyzeVoiceSentiment = async (text: string) => {
     setIsAnalyzingSentiment(true);
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) return;
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const apiKey = readGeminiApiKey();
+      if (!apiKey) return;
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `あなたは感情分析AIです。以下のテキストがポジティブかネガティブかニュートラルかを判定し、その1単語（Positive, Negative, Neutral）のみを出力してください。\n\n「${text}」`;
       const res = await ai.models.generateContent({ model: 'gemini-3.1-flash-preview', contents: prompt });
       const result = res.text?.toLowerCase() || '';
@@ -281,9 +299,7 @@ export default function App() {
     setIsSuggestingTags(true);
     setSuggestedTags([]);
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
       
       const prompt = `あなたは心理学の専門家です。以下の人物のエピソードと基本情報から、この人の性格や行動パターンを表す短めの「特性タグ」（例：完璧主義, 寂しがりや, 承認欲求強め, 気まぐれ, 責任感が強い 等）を5つ提案してください。
 結果はカンマ区切りの文字列（例: タグ1,タグ2,タグ3,タグ4,タグ5）のみを出力してください。
@@ -323,10 +339,7 @@ ${activePerson.episodes.length > 0 ? activePerson.episodes.map(e => `- ${e.descr
     setIsAnalyzing(true);
     
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
       
       const prompt = `あなたは心理学と人間関係の専門家であり、ユーモアのセンスを持った親身なアドバイザーです。
 以下の人物についてのプロフィールと過去の行動エピソードの記録を分析し、
@@ -422,9 +435,7 @@ ${activePerson.episodes.length > 0 ? activePerson.episodes.map(e => `- ${e.date}
     
     setIsAnalyzing(true);
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
       
       const sortedEps = [...person.episodes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       const epsToKeep = sortedEps.slice(0, 3);
@@ -466,9 +477,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
     setRoleplayState({ isOpen: true, personId, messages: [], step: 'playing', loading: true });
     
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
 
       const prompt = `【システム指示】
 あなたは今からユーザーの対話シミュレーション（ロールプレイ）の相手役「${person.name}」を演じます。
@@ -509,9 +518,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
     setRoleplayInput('');
 
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
 
       const systemInstruction = `あなたはユーザーの対話シミュレーションの相手役「${person.name}」です。
 関係性: ${person.relationship}
@@ -540,9 +547,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
   const getRoleplayFeedback = async () => {
     setRoleplayState(prev => ({ ...prev, step: 'feedback', loading: true }));
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
 
       const conversation = roleplayState.messages.map(m => `${m.role === 'user' ? 'あなた' : '相手'}: ${m.text}`).join('\n');
       
@@ -582,9 +587,7 @@ ${conversation}`;
     setIsSuggestingNewPerson(true);
     setNewPersonSuggestion(null);
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
       
       const peopleContext = people.map(p => `- ${p.relationship} (期待値${p.expectationLevel} / 特性: ${p.traits.join(',')})`).join('\n');
       
@@ -631,9 +634,7 @@ ${peopleContext}
     setIsChatLoading(true);
 
     try {
-      const keys = process.env.GEMINI_API_KEY;
-      if (!keys) throw new Error('API Key is missing');
-      const ai = new GoogleGenAI({ apiKey: keys });
+      const ai = createAiClient();
 
       const peopleContext = people.length > 0 ? 
         `【ユーザーが登録している人物リスト（関係性 / 期待値1-5 / 特性 / 過去のエピソード）】\n${people.map(p => `- 名前: ${p.name} (${p.relationship}) / 期待値${p.expectationLevel} / 特性: ${p.traits.join(', ')}\n  エピソード: ${p.episodes.length > 0 ? p.episodes.map(e => e.description).join(' | ') : 'なし'}`).join('\n')}` 

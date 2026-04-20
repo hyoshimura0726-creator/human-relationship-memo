@@ -8,6 +8,14 @@ import {
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  GEMINI_FLASH_PRESETS,
+  GEMINI_PRO_PRESETS,
+  LS_GEMINI_FLASH_MODEL,
+  LS_GEMINI_PRO_MODEL,
+  loadFlashModelId,
+  loadProModelId,
+} from './geminiModels';
 
 const STORAGE_KEY = 'relationship_keeper_data_v1';
 const CHAT_STORAGE_KEY = 'relationship_keeper_chat_v1';
@@ -120,6 +128,9 @@ export default function App() {
   const [roleplayInput, setRoleplayInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [geminiFlashModelId, setGeminiFlashModelId] = useState(() => loadFlashModelId());
+  const [geminiProModelId, setGeminiProModelId] = useState(() => loadProModelId());
+
   // New Episode Form State
   const [newEpisodeDate, setNewEpisodeDate] = useState(new Date().toISOString().split('T')[0]);
   const [newEpisodeDesc, setNewEpisodeDesc] = useState('');
@@ -143,7 +154,7 @@ export default function App() {
       if (!apiKey) return;
       const ai = new GoogleGenAI({ apiKey });
       const prompt = `あなたは感情分析AIです。以下のテキストがポジティブかネガティブかニュートラルかを判定し、その1単語（Positive, Negative, Neutral）のみを出力してください。\n\n「${text}」`;
-      const res = await ai.models.generateContent({ model: 'gemini-3.1-flash-preview', contents: prompt });
+      const res = await ai.models.generateContent({ model: geminiFlashModelId, contents: prompt });
       const result = res.text?.toLowerCase() || '';
       
       if (result.includes('positive')) {
@@ -311,7 +322,7 @@ export default function App() {
 ${activePerson.episodes.length > 0 ? activePerson.episodes.map(e => `- ${e.description}`).join('\n') : 'まだ記録はありません（推測してください）'}
 `;
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: geminiFlashModelId,
         contents: prompt,
       });
       
@@ -364,7 +375,7 @@ ${activePerson.episodes.length > 0 ? activePerson.episodes.map(e => `- ${e.date}
 `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: geminiProModelId,
         contents: prompt,
       });
 
@@ -448,7 +459,7 @@ ${person.episodeSummary || 'なし'}
 ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響: ${e.energyDelta !== undefined ? e.energyDelta : '不明'})`).join('\n')}`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: geminiFlashModelId,
         contents: prompt
       });
 
@@ -489,7 +500,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
 必ず「その人になりきった口調」で話してください。AIとしての前置きは不要です。`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: geminiFlashModelId,
         contents: prompt
       });
 
@@ -532,7 +543,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
       }));
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: geminiFlashModelId,
         contents: contents as any,
         config: { systemInstruction }
       });
@@ -571,7 +582,7 @@ ${epsToSummarize.map(e => `- ${e.date}: ${e.description} (エネルギー影響:
 ${conversation}`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: geminiProModelId,
         contents: prompt
       });
 
@@ -606,7 +617,7 @@ ${peopleContext}
 出力は自然な日本語で、見出しをつけて読みやすく工夫してください。`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: geminiProModelId,
         contents: prompt,
       });
 
@@ -657,7 +668,7 @@ ${peopleContext}`;
       }));
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: geminiFlashModelId,
         contents: contents as any,
         config: {
           systemInstruction,
@@ -780,6 +791,52 @@ ${peopleContext}`;
             >
               データの保存（エクスポート） <Download size={14} />
             </button>
+
+            <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2">
+              <div className="text-[10px] text-slate-500 leading-tight">
+                AI モデル（Studio の「最新」「1.5」に相当する API 名）
+              </div>
+              <label className="block text-[10px] text-slate-500">高速（Flash / Lite）</label>
+              <select
+                value={geminiFlashModelId}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setGeminiFlashModelId(v);
+                  try {
+                    localStorage.setItem(LS_GEMINI_FLASH_MODEL, v);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-2 py-1.5 text-xs text-slate-200"
+              >
+                {GEMINI_FLASH_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+              <label className="block text-[10px] text-slate-500">分析・長文（Pro）</label>
+              <select
+                value={geminiProModelId}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setGeminiProModelId(v);
+                  try {
+                    localStorage.setItem(LS_GEMINI_PRO_MODEL, v);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-2 py-1.5 text-xs text-slate-200"
+              >
+                {GEMINI_PRO_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>

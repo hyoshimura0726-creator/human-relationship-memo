@@ -11,6 +11,10 @@ export default defineConfig(({mode}) => {
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'import.meta.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_FLASH_MODEL': JSON.stringify(env.GEMINI_FLASH_MODEL ?? ''),
+      'process.env.GEMINI_PRO_MODEL': JSON.stringify(env.GEMINI_PRO_MODEL ?? ''),
+      'import.meta.env.GEMINI_FLASH_MODEL': JSON.stringify(env.GEMINI_FLASH_MODEL ?? ''),
+      'import.meta.env.GEMINI_PRO_MODEL': JSON.stringify(env.GEMINI_PRO_MODEL ?? ''),
     },
     resolve: {
       alias: {
